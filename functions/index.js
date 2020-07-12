@@ -28,8 +28,7 @@ const db = admin.firestore()
 // * routes...
 // acesso ao database
 app.get('/screams', (req, res) => {
-    db
-        .collection('screams')
+    db.collection('screams')
         .orderBy('createdAt', 'desc')
         .get()
         .then( data => {
@@ -48,18 +47,54 @@ app.get('/screams', (req, res) => {
         .catch( err => console.error(err))
 })
 
+// Middleware
+const FirebaseAuth = (req, res, next) => {
+    let idToken;
+
+    // se tiver autorização...
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
+        // pegar o token
+        idToken = req.headers.authorization.split('Bearer ')[1];
+    } else {
+        console.error('no token found')
+        return res.status(403).json({ error: 'Unauthorized'})  
+    }
+
+    admin.auth().verifyIdToken(idToken)
+        .then( decodedToken => {
+            // dentro do decodedToken vai ter eos dados do user, vamos adicionar os dados para o request router ter acesso
+            req.user = decodedToken;
+            // o user handle nao fica do decoded token entao vamos fazer uma requisicao ao database
+            return db.collection('users')
+                .where('userId', '==', req.user.uid)
+                .limit(1)
+                .get();
+        })
+        .then( data => {
+            // adicinar ao request do user o handle que vai ser o primeiro item do array
+            req.user.handle = data.docs[0].data().handle
+            return next();
+        })
+        .catch( err => {
+            console.error('Error while verifying token ', err)
+            return res.status(403).json(err)
+        })
+}
 
 // criar uma nova collection
-app.post('/scream', (req, res) =>{ 
+app.post('/scream', FirebaseAuth, (req, res) =>{ 
+
+    if(req.body.body.trim() === ""){
+        return res.status(400).json({body: "Body must not be empty"})
+    }
 
     const newScream = {
         body: req.body.body,
-        userHandle: req.body.userHandle,
+        userHandle: req.user.handle,
         createdAt: new Date().toISOString()
     };
 
-    db
-        .collection('screams')
+    db.collection('screams')
         .add(newScream)
         .then( (doc) => {
             res.json({ message: `document ${doc.id} created successfully` })
@@ -69,6 +104,8 @@ app.post('/scream', (req, res) =>{
             console.error(err)
         })
 })
+
+
 
 
 // sign up route
