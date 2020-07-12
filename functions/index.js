@@ -4,7 +4,7 @@ const functions = require('firebase-functions');
 
 // routes
 const {getAllScreams, postOneScream} = require('./handlers/screams');
-const {signup, login} = require('./handlers/users')
+const {signup, login, uploadImage} = require('./handlers/users')
 
 // helpers
 const FirebaseAuth = require('./util/fbAuth')
@@ -20,6 +20,7 @@ const FirebaseAuth = require('./util/fbAuth')
     app.post('/signup', signup)
     app.post('/login', login)
 
+    app.post('/user/image', FirebaseAuth,uploadImage)
 
 // https://seusite.com/api/...
 // transformar as rotas app em https request no formato do firebase
