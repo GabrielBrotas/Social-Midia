@@ -2,12 +2,10 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin')
 const firebase = require('firebase')
 const app = require('express')();
+const {isEmail, isEmpty} = require('./helpers')
 
+// * configs
 // acesso ao admin do firebase do app
-// admin.initializeApp({
-    
-// });
-
 admin.initializeApp({
   databaseURL: "https://social-midia-4629c.firebaseio.com"
 });
@@ -23,11 +21,11 @@ firebase.initializeApp({
     measurementId: "G-5MX4W58T0T"
 })
 
+// database do firebase
 const db = admin.firestore()
 
 
-
-
+// * routes...
 // acesso ao database
 app.get('/screams', (req, res) => {
     db
@@ -49,6 +47,7 @@ app.get('/screams', (req, res) => {
         })
         .catch( err => console.error(err))
 })
+
 
 // criar uma nova collection
 app.post('/scream', (req, res) =>{ 
@@ -72,29 +71,13 @@ app.post('/scream', (req, res) =>{
 })
 
 
-// check is the string is empty
-const isEmpty = (string) => {
-    // trim para tirar os espaços
-    if(string.trim() === '') return true
-    else return false;
-}
-
-// validate email
-const isEmail = (email) => {
-    // regular expression for a email
-    const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-    if(email.match(emailRegEx)) return true
-    else return false
-}
-
-
 // sign up route
 app.post('/signup', async (req, res) => {
 
     const {email, password, confirmPassword, handle} = req.body
     const newUser = {email, password, confirmPassword, handle}
 
+    // check erros...
     let errors = {}
 
     if(isEmpty(email)){
@@ -107,9 +90,9 @@ app.post('/signup', async (req, res) => {
     if(password !== confirmPassword) errors.confirmPassword = "Password must match"
     if(isEmpty(handle)) errors.handle = "Must not be empty"
 
-
     // se o array de erros for maior que 0
     if(Object.keys(errors).length > 0) return res.status(400).json(errors);
+
 
     // doc passando o caminho da collection e pegar o dado dessa collection com o nome do user handle
     const checkIfUserExist = await db.doc(`/users/${newUser.handle}`).get()
@@ -154,6 +137,7 @@ app.post('/signup', async (req, res) => {
     }
     // feito isso vai criar uma autenticação para o usuario
 })
+
 
 app.post('/login', (req, res) => {
     const {email, password} = req.body

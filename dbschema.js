@@ -1,6 +1,6 @@
 // simular como o database vai aparecer, esse arquivo é apenas para simular e usar como referencia, ele nao vai ser utilizado.
 
-let db = {}
+let db = {
     screams: [
         {
             userHandle: 'user',

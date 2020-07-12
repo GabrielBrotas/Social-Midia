@@ -51,7 +51,7 @@ Firebase
 
     - no console do firebase ir em Authentication > 'Sign-in method' e ativar "Email/Password"
 
-    - ir em 'settings e pegar o script do firebase para adicionar no projeto na parta de "Your apps" 
+    - ir em 'settings' e pegar o script do firebase na pasta de "Your apps" para adicionar na config do projeto em functions
 
         
 
