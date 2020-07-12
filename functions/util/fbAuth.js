@@ -11,7 +11,9 @@ module.exports = (req, res, next) => {
         console.error('no token found')
         return res.status(403).json({ error: 'Unauthorized'})  
     }
-    admin.auth().verifyIdToken(idToken)
+    admin
+        .auth()
+        .verifyIdToken(idToken)
         .then( decodedToken => {
             // dentro do decodedToken vai ter eos dados do user, vamos adicionar os dados para o request router ter acesso
             req.user = decodedToken;
@@ -24,6 +26,7 @@ module.exports = (req, res, next) => {
         .then( data => {
             // adicinar ao request do user o handle que vai ser o primeiro item do array
             req.user.handle = data.docs[0].data().handle
+            req.user.imageUrl = data.docs[0].data().imageUrl
             return next();
         })
         .catch( err => {

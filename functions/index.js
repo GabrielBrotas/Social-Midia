@@ -3,8 +3,8 @@ const app = require('express')();
 const functions = require('firebase-functions');
 
 // routes
-const {getAllScreams, postOneScream} = require('./handlers/screams');
-const {signup, login, uploadImage} = require('./handlers/users')
+const {getAllScreams, postOneScream, getScream, commentOnScream} = require('./handlers/screams');
+const {signup, login, uploadImage, addUserDetails, getAuthenticatedUser} = require('./handlers/users')
 
 // helpers
 const FirebaseAuth = require('./util/fbAuth')
@@ -15,12 +15,21 @@ const FirebaseAuth = require('./util/fbAuth')
     app.get('/screams', getAllScreams)
     // criar uma nova scream
     app.post('/scream', FirebaseAuth, postOneScream)
+    app.get('/scream/:screamId', getScream);
 
+    //todo, delete scream
+    //todo, like a scream
+    //todo, unlike a scream
+    app.post('/scream/:screamId/comment', FirebaseAuth, commentOnScream)
+    
 // * Users routes
     app.post('/signup', signup)
     app.post('/login', login)
+    app.post('/user/image', FirebaseAuth, uploadImage)
+    app.post('/user', FirebaseAuth, addUserDetails)
+    app.get('/user', FirebaseAuth, getAuthenticatedUser)
 
-    app.post('/user/image', FirebaseAuth,uploadImage)
+    
 
 // https://seusite.com/api/...
 // transformar as rotas app em https request no formato do firebase
