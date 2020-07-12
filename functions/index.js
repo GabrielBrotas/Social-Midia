@@ -72,58 +72,53 @@ app.post('/scream', (req, res) =>{
 })
 
 // sign up route
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
 
     const {email, password, confirmPassword, handle} = req.body
     const newUser = {email, password, confirmPassword, handle}
 
-    let token, userId;
-    // doc passando o caminho da collection e pegar todos os dados 
-    db.doc(`/users/${newUser.handle}`).get()
-        .then( doc => {
-            // se tiver um usuario com esse 'handle' ou nome
-            if(doc.exists){
-                // nao vai cadastrar
-                return res.status(400).json({ handle: 'this handle is already taken'})
-            } else {
-                // criar um usuario com o email e senha passado
-                return firebase
-                    .auth()
-                    .createUserWithEmailAndPassword(newUser.email, newUser.password)
-            }
-        })
-        .then( data => {
-            userId = data.user.uid
-            // pegar o id do usuario criado
-            return data.user.getIdToken()
-        })
-        .then( idToken => {
-            // atualizar o token para o do novo usuario criado 
-            token = idToken;
+    // doc passando o caminho da collection e pegar o dado dessa collection com o nome do user handle
+    const checkIfUserExist = await db.doc(`/users/${newUser.handle}`).get()
 
-            const userCredentials = {
-                handle: newUser.handle,
-                email: newUser.email,
-                createdAt: new Date().toISOString(),
-                userId
-            }
-            // set() vai criar um novo usuario, ao inves de get que apeenas pega
-            return db.doc(`/users/${newUser.handle}`).set(userCredentials);
-        })
-        .then( () => {
-            // retornar o token do usuario
-            return res.status(201).json({token})
-        })
-        .catch( err => {
-            console.error(err)
-            if (err.code === 'auth/email-already-in-use'){
-                return res.status(400).json({ email: 'Email already in use'})
-            }
-            return res.status(500).json({ error: err.code})
-        })
+    // se existir um usuario...
+    if(checkIfUserExist.exists){
+        // nao vai cadastrar
+        return res.status(400).json({ handle: 'this handle is already taken'})
+    } 
 
+    try{
+        // esperar criar um usuario com o email e senha passado
+        const data = await firebase
+        .auth()
+        .createUserWithEmailAndPassword(newUser.email, newUser.password)
+
+        // pegar o id do usuario
+        const userId = data.user.uid
+
+        // pegar o token
+        const userToken = data.user.getIdToken()
+        
+        // criar objeto com as credenciais
+        const userCredentials = {
+        handle, email,
+        createdAt: new Date().toISOString(),
+        userId
+        }
+
+        // esperar criar um novo usuario, set() vai criar um novo usuario ao inves de get que apenas pega
+        await db.doc(`/users/${newUser.handle}`).set(userCredentials)
+
+        // retornar o token
+        return res.status(201).json({ userToken: userToken.i} )
+
+    } catch(err){
+        console.error(err)
+        if (err.code === 'auth/email-already-in-use'){
+            return res.status(400).json({ email: 'Email already in use'})
+        }
+        return res.status(500).json({ error: err.code})
+    }
     // feito isso vai criar uma autenticação para o usuario
-    
 })
 
 
