@@ -42,28 +42,24 @@ exports.api = functions.https.onRequest(app)
 // onCreate vai ativar um evento que nesse caso quando um novo like for criado no nosso database vai chamar essa função
 exports.createNotificationOnLike = functions.firestore.document('likes/{id}').onCreate( (snapshot) => {
 
-        db.doc(`/screams/${snapshot.data().screamId}`).get()
-            .then( doc => {
-                if(doc.exists){
-                    // criar um objeto com os dados da notificação para salvar e mandar para o recipient 
-                    return db.doc(`/notifications/${snapshot.id}`).set({
-                        createdAt: new Date().toISOString(),
-                        recipient: doc.data().userHandle,
-                        sender: snapshot.data().userHandle,
-                        type: 'like',
-                        read: false,
-                        screamId: doc.id
-                    });
-                }
-            })
-            // nao precisa retornar nada pois não faz parte da api
-            .then( () => {
-                return
-            })
-            .catch( err => {
-                console.error(err);
-                return;
-            })
+    return db.doc(`/screams/${snapshot.data().screamId}`).get()
+        .then( doc => {
+            if(doc.exists && doc.data().userHandle !== snapshot.data().userHandle){
+                // criar um objeto com os dados da notificação para salvar e mandar para o recipient 
+                return db.doc(`/notifications/${snapshot.id}`).set({
+                    createdAt: new Date().toISOString(),
+                    recipient: doc.data().userHandle,
+                    sender: snapshot.data().userHandle,
+                    type: 'like',
+                    read: false,
+                    screamId: doc.id
+                });
+            }
+        })
+        // nao precisa retornar nada pois não faz parte da api
+        .catch( err => {
+            console.error(err);
+        })
 })
 
 // caso o usuario removar o like vai tirar a notificação
@@ -71,11 +67,8 @@ exports.deleteNotificationOnUnlike = functions
     .region('us-central1')
     .firestore.document('likes/{id}')
     .onDelete( (snapshot) => {
-        db.doc(`/notifications/${snapshot.id}`)
+        return db.doc(`/notifications/${snapshot.id}`)
             .delete()
-            .then( () => {
-                return
-            })
             .catch( err =>{
                 console.error(err)
                 return
@@ -87,10 +80,10 @@ exports.createNotificationOnComment = functions
     .region('us-central1')
     .firestore.document('comments/{id}')
     .onCreate( (snapshot) => {
-        db.doc(`/screams/${snapshot.data().screamId}`)
+        return db.doc(`/screams/${snapshot.data().screamId}`)
             .get()
             .then( doc => {
-                if(doc.exists){
+                if(doc.exists && doc.data().userHandle !== snapshot.data().userHandle){
                     // criar um objeto com os dados da notificação para salvar e mandar para o recipient 
                     return db.doc(`/notifications/${snapshot.id}`).set({
                         createdAt: new Date().toISOString(),
@@ -103,11 +96,53 @@ exports.createNotificationOnComment = functions
                 }
             })
             // nao precisa retornar nada pois não faz parte da api
-            .then( () => {
-                return
-            })
             .catch( err => {
                 console.error(err);
                 return;
             })
 })
+
+exports.onUserImageChange = functions.firestore.document('/users/{userId}')
+    .onUpdate( change => {
+        // change tem dois valores 'change.before.data()' e 'change.after.data()' e
+        if(change.before.data().imageUrl !== change.after.data().imageUrl){
+            const batch = db.batch();
+            return db.collection('screams')
+                .where('userHandle', '==', change.before.data().handle)
+                .get()
+                .then( data => {
+                    data.forEach( doc => {
+                        const scream = db.doc(`/screams/${doc.id}`);
+                        batch.update(scream, {userImage: change.after.data().imageUrl})
+                    })
+                    return batch.commit()
+                })
+        }
+    })
+
+
+exports.onScreamDelete = functions.firestore.document("/screams/{screamId}")
+    .onDelete( (snapshot, context) => {
+        const screamId = context.params.screamId;
+        const batch = db.batch();
+        return db.collection('comments').where('screamId', '==', screamId).get()
+            .then( data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/comments/${doc.id}`))
+                })
+                return db.collection('likes').where('screamId', '==', screamId)
+            })
+            .then( data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/likes/${doc.id}`))
+                })
+                return db.collection('notifications').where('screamId', '==', screamId)
+            })
+            .then( data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/notifications/${doc.id}`))
+                })
+                return batch.commit()
+            })
+            .catch( err => {console.error(err)})
+    })
