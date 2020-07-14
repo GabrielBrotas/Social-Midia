@@ -55,17 +55,22 @@ exports.validateLoginData = (data) => {
 exports.reduceUserDetails = (data) => {
     let userDetails = {};
 
+    // se tiver mandado uma bio adicionar ela no objeto
     if(!isEmpty(data.bio.trim())) userDetails.bio = data.bio
 
+    // se tiver adicionado um website
     if(!isEmpty(data.website.trim())){
-        // https://website.com
+        // https://website.com <- modelo padrao de website
+        // caso o inicio nao começe com http.. vamos adicioná-lo
         if(data.website.trim().substring(0, 4) !== 'http'){
+            // http:// + o nome do site
             userDetails.website = `http://${data.website.trim()}`
         } else userDetails.website = data.website;
     }
 
     if(!isEmpty(data.location.trim())) userDetails.location = data.location
 
+    // retornar os dados formatados
     return userDetails
 }
 
