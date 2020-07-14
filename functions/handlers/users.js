@@ -60,8 +60,10 @@ exports.signup = async (req, res) => {
         console.error(err)
         if (err.code === 'auth/email-already-in-use'){
             return res.status(400).json({ email: 'Email already in use'})
+        } else {
+            return res.status(500).json({general: "Something went wrong"})
         }
-        return res.status(500).json({ error: err.code})
+        
     }
     // feito isso vai criar uma autenticação para o usuario
 }
@@ -84,10 +86,8 @@ exports.login = (req, res) => {
         })
         .catch(err => {
             console.error(err);
-            if(err.code === "auth/wrong-password"){
-                return res.status(403).json({general: "Wrong credentials. Please try again."})
-            } else return res.status(500).json({error: err.code})
-            
+            // auth/wrong-password
+            return res.status(403).json({general: "Wrong credentials. Please try again."})
         })
 }
 
@@ -102,6 +102,43 @@ exports.addUserDetails = (req, res) => {
         })
         .catch( err => {
             console.error(err)
+            return res.status(500).json({error: err.code})
+        })
+}
+
+// Get any useer's details
+exports.getUserDetails = (req, res) => {
+    let userData = {}
+
+    db.doc(`/users/${req.params.handle}`).get()
+        .then( doc => {
+            if(doc.exists){
+                userData.user = doc.data();
+                return db.collection("screams").where('userHandle', '==', req.params.handle)
+                    .orderBy('createdAt', 'desc')
+                    .get()
+            }
+            else{
+                return res.status(404).json({error: "user not found"})
+            }
+        })
+        .then( data => {
+            userData.screams = []
+            data.forEach( doc => {
+                userData.screams.push({
+                    body: doc.data().body,
+                    createdAt: doc.data().createdAt,
+                    userHandle: doc.data().userHandle,
+                    userImage: doc.data().userImage,
+                    likeCount: doc.data().likeCount,
+                    commentCount: doc.data().commentCount,
+                    screamId: doc.id,
+                })
+                return res.json(userData)
+            })
+        })
+        .catch(err => {
+            console.error(err);
             return res.status(500).json({error: err.code})
         })
 }
@@ -121,6 +158,23 @@ exports.getAuthenticatedUser = (req, res) => {
             data.forEach(doc => {
                 userData.likes.push(doc.data())
             })
+            return db.collection("notifications").where('recipient', '==', req.user.handle)
+                .orderBy('createdAt', 'desc').limit(10).get();
+        })
+        .then( data => {
+            // pegar notification do user para passar para o frontend
+            userData.notififications = [];
+            data.forEach(doc => {
+                userData.notifications.push({
+                    recipient: doc.data().recipient,
+                    sender: doc.data().sender,
+                    createdAt: doc.data().createdAt,
+                    screamId: doc.data().screamId,
+                    type: doc.data().type,
+                    read: doc.data().read,
+                    notificationId: doc.id
+                })
+            })
             return res.json(userData)
         })
         .catch(err => {
@@ -128,6 +182,8 @@ exports.getAuthenticatedUser = (req, res) => {
             return res.status(500).json({error: err.code})
         })
 }
+
+
 // Upload proflie image
 exports.uploadImage = (req, res) => {
     const BusBoy = require("busboy");
@@ -176,4 +232,21 @@ exports.uploadImage = (req, res) => {
 
     busboy.end(req.rawBody);
     
+}
+
+exports.markNotificationsRead = (req, res) => {
+    let batch = db.batch()
+    req.body.forEach( notificationId => {
+        const notification = db.doc(`notifications/${notificationId}`);
+        // atualizar as notificações para true
+        batch.update(notification, {read: true})
+    })
+    batch.commit()
+        .then( () => {
+            return res.json({message: "Notifications marked read"})
+        })
+        .catch(err => {
+            console.error(err)
+            return res.status(500).json({error: err.code})
+        })
 }

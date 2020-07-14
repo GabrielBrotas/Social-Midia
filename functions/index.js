@@ -5,7 +5,7 @@ const {db} = require('./util/admin')
 
 // routes
 const {getAllScreams, postOneScream, getScream, commentOnScream, likeScream, unlikeScream, deleteScream} = require('./handlers/screams');
-const {signup, login, uploadImage, addUserDetails, getAuthenticatedUser} = require('./handlers/users')
+const {signup, login, uploadImage, addUserDetails, getAuthenticatedUser, getUserDetails, markNotificationsRead} = require('./handlers/users')
 
 // helpers
 const FirebaseAuth = require('./util/fbAuth')
@@ -30,6 +30,8 @@ const FirebaseAuth = require('./util/fbAuth')
     app.post('/user/image', FirebaseAuth, uploadImage)
     app.post('/user', FirebaseAuth, addUserDetails)
     app.get('/user', FirebaseAuth, getAuthenticatedUser)
+    app.get('/user/:handle', getUserDetails)
+    app.post('/notifications', FirebaseAuth, markNotificationsRead)
 
     
 
