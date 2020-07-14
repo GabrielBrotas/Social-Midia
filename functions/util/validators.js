@@ -22,14 +22,16 @@ exports.validateSignupData = (data) => {
     // check erros...
     let errors = {}
 
-    if(isEmpty(data.email)){
-        errors(data.email) = "Must not be empty"
-    } else if (!isEmail(data.email)){
-        errors(data.email) = 'Must be a valid email address'
-    }
+    // checar se email vazio
+    if(isEmpty(data.email)){errors(data.email) = "Must not be empty"} 
+    // checar se é um email valido
+    else if (!isEmail(data.email)){errors(data.email) = 'Must be a valid email address'}
 
+    // checar se a senha esta vazia
     if(isEmpty(data.password)) errors.password = "Must not be empty"
+    // se as senhas batem
     if(data.password !== data.confirmPassword) errors.confirmPassword = "Password must match"
+    // se o nome do usuario está vazio
     if(isEmpty(data.handle)) errors.handle = "Must not be empty"
 
     return {
