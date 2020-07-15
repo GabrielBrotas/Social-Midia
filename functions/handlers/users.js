@@ -4,9 +4,7 @@ const {admin, db} = require('../util/admin')
 const config = require('../util/config')
 const {validateSignupData, validateLoginData, reduceUserDetails} = require('../util/validators')
 
-
 firebase.initializeApp(config)
-
 
 // Sign up new user
 exports.signup = async (req, res) => {
@@ -226,15 +224,16 @@ exports.uploadImage = (req, res) => {
         // pegar a extensão do arquivo
         const imageExtension = filename.split('.')[filename.split('.').length - 1]
         // alterar o nome da imagem e adicionar a extensao
-        imageFileName = `${Math.round(Math.random()*100000000)}.${imageExtension}`;
+        imageFileName = `${Math.round(Math.random()*100000000000)}.${imageExtension}`;
 
         // path vai unir as strings e formatar para um diretorio, ex: 'Users', 'Exemple' = Users\Exemple
         // os.tmpdir() vai pegar o diretorio do sistema onde guarda arquivos temporatios
         // vai salvar na pasta de arquivos temporarios com o nome do arquivo
         const filepath = path.join(os.tmpdir(), imageFileName);
 
-        // adicionar ao objeto o arquivo e o mimetype
+        // adicionar ao objeto o arquivo e o mimetype(ex:image/jpeg)
         imageToBeUploaded = {filepath, mimetype}
+
         // o pipe transforma algo readable para writeable, ou seja, ele transforma um fluxo legível para um fluxo de gravação ao coletar dados.
         file.pipe(fs.createWriteStream(filepath))
     })
@@ -250,7 +249,9 @@ exports.uploadImage = (req, res) => {
                 }
             }
         })
+        
         .then( () => {
+            
             // alt midia visualiza no navegador, caso nao tenha vai baixar a imagem
             const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
 
@@ -260,6 +261,7 @@ exports.uploadImage = (req, res) => {
             return res.json({message: "Image uploaded successfully"})
         })
         .catch(err=>{
+            
             console.error(err)
             return res.status(500).json({error: err.code})
         })

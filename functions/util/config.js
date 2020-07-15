@@ -1,11 +1,11 @@
 // config do app
 module.exports = {
-    apiKey: "AIzaSyCMLySTGbm96zwK1-tLNiDkAsTOFf703Ig",
-    authDomain: "social-midia-4629c.firebaseapp.com",
-    databaseURL: "https://social-midia-4629c.firebaseio.com",
-    projectId: "social-midia-4629c",
-    storageBucket: "social-midia-4629c.appspot.com",
-    messagingSenderId: "1079262551762",
-    appId: "1:1079262551762:web:b12585c257b6546f5c170b",
-    measurementId: "G-5MX4W58T0T"
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.AUTH_DOMAIN,
+    databaseURL: process.env.DATABASE_URL,
+    projectId: process.env.PROJECT_ID,
+    storageBucket: process.env.STORAGE_BUCKET,
+    messagingSenderId: process.env.MESSAGING_SENDER_ID,
+    appId: process.env.APP_ID,
+    measurementId: process.env.MEASUREMENT_ID,
 }

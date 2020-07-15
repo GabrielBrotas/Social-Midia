@@ -1,9 +1,10 @@
 const admin = require('firebase-admin')
+require('dotenv/config')
 
 // acesso ao admin do firebase do app
 admin.initializeApp({
-  databaseURL: "https://social-midia-4629c.firebaseio.com", // nome do database
-  storageBucket: "social-midia-4629c.appspot.com" // nome do bucket onde vai ficar salvo as fotos
+  databaseURL: process.env.DATABASE_URL, // nome do database
+  storageBucket: process.env.STORAGE_BUCKET // nome do bucket onde vai ficar salvo as fotos
 });
 
   // database do firebase
