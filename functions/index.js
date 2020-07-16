@@ -4,6 +4,9 @@ const functions = require('firebase-functions');
 const {db} = require('./util/admin')
 require('dotenv/config')
 
+const cors = require('cors')
+app.use(cors())
+
 // * routes
 const {
     getAllScreams,

@@ -13,7 +13,7 @@ exports.getAllScreams = (req, res) => {
             data.forEach( doc => {
                 // para cada documento dentro dos dados colocar deentro do array criado
                 screams.push({
-                    sreamId: doc.id,
+                    screamId: doc.id,
                     body: doc.data().body,
                     userHandle: doc.data().userHandle,
                     createdAt: doc.data().createdAt,

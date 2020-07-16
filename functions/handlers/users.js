@@ -13,9 +13,9 @@ exports.signup = async (req, res) => {
     const newUser = {email, password, confirmPassword, handle}
 
     // função para verificar os dados
-    const {valid, erros} = validateSignupData(newUser)
+    const {valid, errors} = validateSignupData(newUser)
     // se nao tiver valido retornar os erros...
-    if(!valid) return res.status(400).json(erros)
+    if(!valid) return res.status(400).json(errors)
 
     // imagem default para todos os usuarios(essa imagem já foi dada upload no db)
     const noImg = "no-img.png"
@@ -76,9 +76,9 @@ exports.login = (req, res) => {
     const {email, password} = req.body
     const user = {email, password}
 
-    const {valid, erros} = validateLoginData(user)
+    const {valid, errors} = validateLoginData(user)
 
-    if(!valid) return res.status(400).json(erros)
+    if(!valid) return res.status(400).json(errors)
 
     // autenticar o usuario com o email e a senha
     firebase.auth().signInWithEmailAndPassword(email, password)
