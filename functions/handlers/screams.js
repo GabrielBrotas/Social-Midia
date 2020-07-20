@@ -1,6 +1,7 @@
 const {db} = require('../util/admin')
 
 exports.getAllScreams = (req, res) => {
+    
     // db.collection(<nome da collection>) para acessá-la
     db.collection('screams')
         // ordenar

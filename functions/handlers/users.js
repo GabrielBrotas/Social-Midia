@@ -85,8 +85,10 @@ exports.login = (req, res) => {
         .then( data => {
             // pegear o token
             return data.user.getIdToken()
+
         })
         .then(token => {
+
             // retornar o token
             return res.json({token})
         })
@@ -117,7 +119,7 @@ exports.addUserDetails = (req, res) => {
 // Get any useer's details
 exports.getUserDetails = (req, res) => {
     let userData = {}
-
+    console.log('okaa')
     // pegar os dados do usuario
     db.doc(`/users/${req.params.handle}`).get()
         .then( doc => {
@@ -157,7 +159,8 @@ exports.getUserDetails = (req, res) => {
 
 // Get own user details
 exports.getAuthenticatedUser = (req, res) => {
-    let userData = {};
+
+    let userData = {likes: [], notifications: []};
     // pegar o usuario que está logado
     db.doc(`/users/${req.user.handle}`).get()
         .then( doc => {
@@ -169,7 +172,6 @@ exports.getAuthenticatedUser = (req, res) => {
             }
         })
         .then( data => {
-            userData.likes = []
             // para cada like que o user já deu, adicionar no array dentro do objeto esse dado do like
             data.forEach(doc => {
                 userData.likes.push(doc.data())
@@ -180,7 +182,6 @@ exports.getAuthenticatedUser = (req, res) => {
         })
         .then( data => {
             // pegar as 10 primeiras notificações do user para passar para o frontend
-            userData.notififications = [];
             // colocar as notificações no array dentro do objeto
             data.forEach(doc => {
                 userData.notifications.push({
