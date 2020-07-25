@@ -44,9 +44,10 @@
 	Field: createdAt, type: timestamp, com a data e hora que foi criada
 
    - Criar outra screams para essa collection  
-	 Field: userHandle, type: string, Value: user 
-	 Field: body, type: string, Value: Second screams example
-	 Field: createdAt, type: timestamp, com a data e hora que foi criada
+  	
+	Field: userHandle, type: string, Value: user 
+	Field: body, type: string, Value: Second screams example
+	Field: createdAt, type: timestamp, com a data e hora que foi criada
     
        >firebase serve # vai criar um server local para nao ter que fazer deploy sempre que tiver uma mudança no codigo
 
