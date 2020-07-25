@@ -37,10 +37,11 @@
    - Criar o Cloud Firestore no modo test
 
    - Criar uma collection com o nome 'screams'
-   - criar um documento para essa collection   
-       Field: userHandle, type: string, Value: user
-       Field: body, type: string, Value: First screams example
-       Field: createdAt, type: timestamp, com a data e hora que foi criada
+   - criar um documento para essa collection  
+   
+         Field: userHandle, type: string, Value: user
+	Field: body, type: string, Value: First screams example
+	 Field: createdAt, type: timestamp, com a data e hora que foi criada
 
    - Criar outra screams para essa collection  
        Field: userHandle, type: string, Value: user
