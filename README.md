@@ -20,11 +20,16 @@
 	-> code . # abrir o visual studio code
 
    4 - Arquivos criados.
+   
    4.1 - .firebaserc # é o config file que tem o id do projeto.
+   
    4.2 - Na pasta functions -> index.js # é onde as funcões vao ficar.
+   
    4.3 - >firebase deploy  # no cmd para atualizar o Arquivos ( A conta tem que estar no plan Blaze)
-        Url para colocar no postman e verificar retorno. ex: 
+   
+        Url para colocar no postman e verificar retorno. ex:
         https://us-central1-social-midia-4629c.cloudfunctions.net/helloWorld
+	
    4.4 - Feito isso vai estar conectado com o firebase
 
 5 - Inicializar o database
