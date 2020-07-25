@@ -17,15 +17,15 @@
 	-> JavaScript
 	-> 'Do you want to use ESLint to catch probable bugs and enforce style? No' No
 	-> 'Do you want to install dependencies with npm now? Yes'Yes (instalar os pacotes que precisa)
-	-> code . # abrir o visual studio code
+	-> code . 	# abrir o visual studio code
 
    4 - Arquivos criados.
    
-   4.1 - .firebaserc # é o config file que tem o id do projeto.
+   4.1 - .firebaserc 	# é o config file que tem o id do projeto.
    
-   4.2 - Na pasta functions -> index.js # é onde as funcões vao ficar.
+   4.2 - Na pasta functions -> index.js 	# é onde as funcões vao ficar.
    
-   4.3 - >firebase deploy  # no cmd para atualizar o Arquivos ( A conta tem que estar no plan Blaze)
+   4.3 - >firebase deploy  	# no cmd para atualizar o Arquivos ( A conta tem que estar no plan Blaze)
    
         Url para colocar no postman e verificar retorno. ex:
         https://us-central1-social-midia-4629c.cloudfunctions.net/helloWorld
